@@ -286,17 +286,18 @@ def get_send_receive_map(next_VMID_to_use,bin_vm_map,bin_partition_map,Partition
                     VM_partition_receive_map[mapped_vm].add(partition)
                     VM_partition_send_map[Partition_PhysicalVM_Map[partition]].add(partition)
                 else:
-                    print "preload partition "+str(partition)+" on vm "+str(mapped_vm)
+                    pass
+                    # print "preload partition "+str(partition)+" on vm "+str(mapped_vm)
                     #FIXME: updating the mapping for preloaded partitions
 
-                   #TODO: will this work for approaches other than FFD?--- looks ok as we are clearing the mapping at the start of new approach
-                    Partition_PhysicalVM_Map[partition]=mapped_vm
-                    if(mapped_vm in PhysicalVM_Partition_Map.keys()):
-                        l=PhysicalVM_Partition_Map[mapped_vm]
-                        l.append(partition)
-                        PhysicalVM_Partition_Map[mapped_vm]=l
-                    else:
-                        PhysicalVM_Partition_Map[mapped_vm]=[partition]
+                    #TODO: will this work for approaches other than FFD?--- looks ok as we are clearing the mapping at the start of new approach
+                    # Partition_PhysicalVM_Map[partition]=mapped_vm
+                    # if(mapped_vm in PhysicalVM_Partition_Map.keys()):
+                    #     l=PhysicalVM_Partition_Map[mapped_vm]
+                    #     l.append(partition)
+                    #     PhysicalVM_Partition_Map[mapped_vm]=l
+                    # else:
+                    #     PhysicalVM_Partition_Map[mapped_vm]=[partition]
 
 
     # print "send map"
