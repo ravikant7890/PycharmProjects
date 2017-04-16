@@ -1,0 +1,19 @@
+#
+# Directed graph - out-degree Distribution. G(100, 1000). 0 (0.0000) nodes with out-deg > avg deg (20.0), 0 (0.0000) with >2*avg.deg (Sun Aug  7 14:14:50 2016)
+#
+# Out-degree	Count
+4	2
+5	4
+6	2
+7	12
+8	11
+9	12
+10	14
+11	17
+12	12
+13	4
+14	4
+15	1
+16	2
+17	2
+20	1
