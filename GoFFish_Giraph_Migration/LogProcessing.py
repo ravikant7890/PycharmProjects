@@ -15,8 +15,17 @@ constraint=sys.argv[4]
 max_constraint=sys.argv[5]
 partition_size=sys.argv[6]
 
+plotfolder=sys.argv[7]
+
+
+SERIALIZATION_TIME=(sys.argv[8])
+
+DESERIALIZATION_TIME=(sys.argv[9])
+
+
 os.system("mkdir -p "+output_folder)
 os.system("mkdir -p "+simulation_folder)
+os.system("mkdir -p "+plotfolder)
 
 cmd="ls -1 "+parent_folder
 
@@ -118,7 +127,7 @@ for filename in out_dir_list:
 
     #######################################################
     # exit()
-    command_for_Default_FFD_FFDwithMigration="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+partition_size
+    command_for_Default_FFD_FFDwithMigration="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+partition_size+" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
     print "executing command ",command_for_Default_FFD_FFDwithMigration
 
@@ -136,7 +145,7 @@ for filename in out_dir_list:
     ####################################################################
     default_makspan=default.split(",")[0]
 
-    command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size
+    command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
 
     print "executing command ",command_for_FFD_LossGainVMIncrement
@@ -149,8 +158,8 @@ for filename in out_dir_list:
 
     while(FFDLossGainVMIncrement.split()[0]=="ERROR"):
         print "can not schedule with constraint ",constraint+" enter increased value"
-        constraint=str(int(constraint)+10)
-        command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size
+        constraint=str(int(constraint)+5)
+        command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
         print "executing command ",command_for_FFD_LossGainVMIncrement
 
         result = subprocess.check_output(command_for_FFD_LossGainVMIncrement, shell=True)
@@ -165,7 +174,7 @@ for filename in out_dir_list:
 
 
 
-    command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  10 "+max_constraint+" "+default_makspan+" "+partition_size
+    command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  10 "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
 
     print "executing command ",command_for_MinMax
@@ -177,8 +186,9 @@ for filename in out_dir_list:
     print "MinMax",MinMax
 
     while(MinMax.split()[0]=="ERROR"):
-        max_constraint=str(int(max_constraint)+10)
-        command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" 10 "+max_constraint+" "+default_makspan+" "+partition_size
+        min_constraint=max_constraint
+        max_constraint=str(int(max_constraint)+100)
+        command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  "+min_constraint+" "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
         print "executing command ",command_for_MinMax
 
         result = subprocess.check_output(command_for_MinMax, shell=True)
@@ -219,11 +229,24 @@ metalist.append(coresec_list)
 
 print metalist
 
+plt.xticks([1, 2, 3,4,5], ['Default', 'FFD', 'FFDM','FFDMPlanning','MinMax'])
+plt.title(graph_name+"_makespan")
+plt.ylabel("time in ms")
 plt.violinplot(makespan_list)
-plt.show()
 
+plt.savefig(plotfolder+"/"+graph_name+"_makespan.pdf")
+plt.close()
+
+plt.xticks([1, 2, 3,4,5], ['Default', 'FFD', 'FFDM','FFDMPlanning','MinMax'])
+plt.ylabel("time in minutes")
+plt.title(graph_name+"_core-minutes")
 plt.violinplot(coremin_list)
-plt.show()
+plt.savefig(plotfolder+"/"+graph_name+"_coremin.pdf")
+plt.close()
 
+plt.xticks([1, 2, 3,4,5], ['Default', 'FFD', 'FFDM','FFDMPlanning','MinMax'])
+plt.ylabel("time in seconds")
+plt.title(graph_name+"_core-seconds")
 plt.violinplot(coresec_list)
-plt.show()
+plt.savefig(plotfolder+"/"+graph_name+"_coresec.pdf")
+plt.close()

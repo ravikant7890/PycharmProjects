@@ -222,10 +222,10 @@ if __name__ == '__main__':
 
     startTime = int(round(time.time() * 1000))
 
-    if (len(sys.argv)!=5):
-        print "Usage FDD.py file_name source_partition number_of_partitions partition_size"
+    if (len(sys.argv)!=7):
+        print "Usage FDD.py file_name source_partition number_of_partitions partition_size_in_MB SERIALIZATION_TIME_in_ms DESERIALIZATION_TIME_in_ms"
         print "Example:"
-        print "knapsack.py test.csv 4 40"
+        print "knapsack.py test.csv 4 40 50 1324 6512"
         print "columns in test.csv PartitionID,SubgraphID,SuperStep,ComputeTime"
         quit()
 
@@ -239,6 +239,13 @@ if __name__ == '__main__':
 
 
     number_of_partitions=int(sys.argv[3])
+
+    PARTITION_SIZE=float(sys.argv[4])
+
+
+    SERIALIZATION_TIME=float(sys.argv[5])
+
+    DESERIALIZATION_TIME=float(sys.argv[6])
 
     #TODO: maintain a map to store the Supertep timings
 
@@ -260,7 +267,7 @@ if __name__ == '__main__':
     Physical_VM_migration_active_map={}##VM->SS will indicate supersteps in which VMs need to send partitions
     SS_migration_cost={} ##stores the migration cost for the SS
 
-    PARTITION_SIZE=float(sys.argv[4]) #MB
+     #MB
     BANDWIDTH=60.0 #MB/s
 
     ############################# NEW METRICS ####################################
@@ -527,7 +534,7 @@ if __name__ == '__main__':
             ## in milliseconds
 
             print "max_send_receive_partition_count_for_vm" +str(max_send_receive_partition_count_for_vm)
-            migration_cost=((max_send_receive_partition_count_for_vm*PARTITION_SIZE)/BANDWIDTH) *1000
+            migration_cost=(((max_send_receive_partition_count_for_vm*PARTITION_SIZE)/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
 
             SS_migration_cost[superstep]=migration_cost
             ###################################################################################
@@ -708,7 +715,7 @@ if __name__ == '__main__':
 
     print "total core_sec"
     print sum(Physical_VM_CoreSec_map.values())
-    core_sec=sum(Physical_VM_CoreSec_map.values())
+    core_sec=sum(Physical_VM_CoreSec_map.values())/1000.0
 
 
 

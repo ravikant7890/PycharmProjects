@@ -18,10 +18,10 @@ if __name__ == '__main__':
     ##### input parsing #################################################
     startTime = int(round(time.time() * 1000))
 
-    if (len(sys.argv)!=7):
-        print "Usage FDD_with_LossGain.py file_name source_partition number_of_partitions constraint_val DEFAULT_MAKESPAN partition_size"
+    if (len(sys.argv)!=9):
+        print "Usage FDD_with_LossGain.py file_name source_partition number_of_partitions constraint_val DEFAULT_MAKESPAN partition_size SERIALIZATION_TIME DESERIALIZATION_TIME"
         print "Example:"
-        print "FDD_with_LossGain.py test.csv 4 40 20 20000 50.5"
+        print "FDD_with_LossGain.py test.csv 4 40 20 20000 50.5 12015 13045"
         print "columns in test.csv PartitionID,SubgraphID,SuperStep,ComputeTime"
         quit()
 
@@ -40,6 +40,11 @@ if __name__ == '__main__':
 
     DEFAULT_MAKESPAN=float(sys.argv[5])
 
+    PARTITION_SIZE=float(sys.argv[6]) #MB
+
+    SERIALIZATION_TIME=float(sys.argv[7])
+
+    DESERIALIZATION_TIME=float(sys.argv[8])
     ######################### METRICS+ DS TO BE USED #######################
 
     Superstep_time_map={}#old metric can be used for default case
@@ -60,7 +65,7 @@ if __name__ == '__main__':
     vm_migration_ss_map={}##VM->SS will indicate supersteps in which VMs need to send/receive partitions
     ss_migration_cost={} ##stores the migration cost for the SS
 
-    PARTITION_SIZE=float(sys.argv[6]) #MB
+
     BANDWIDTH=float(60.0) #MB/s
 
     sstime_with_migration={}##key:ss value: total time required for ss(max_compute + max_migration)
@@ -278,7 +283,7 @@ if __name__ == '__main__':
             vm_receive_map=result[1]
 
 
-            result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
+            result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH,SERIALIZATION_TIME,DESERIALIZATION_TIME)
 
             send_bottleneck_flag=result[0]
             migration_cost=result[1]
@@ -367,7 +372,7 @@ if __name__ == '__main__':
                 while(positive_score_flag):### avoid migration approach --loop until there are partitions with positive scores in the bottleneck VM
 
                     #FIXME: recalculating the bottleneck vm every time
-                    result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
+                    result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH,SERIALIZATION_TIME,DESERIALIZATION_TIME)
 
                     send_bottleneck_flag=result[0]
                     migration_cost=result[1]
@@ -422,7 +427,7 @@ if __name__ == '__main__':
 
                     migration_count=hf.max_migration_partition_count(vm_send_map, vm_receive_map)
 
-                    max_migration_time=(migration_count* PARTITION_SIZE/BANDWIDTH) *1000
+                    max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
 
 
                     # print "vm_send_map"
@@ -547,7 +552,7 @@ if __name__ == '__main__':
                         vm_receive_map=result[1]
 
 
-                        result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
+                        result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH,SERIALIZATION_TIME,DESERIALIZATION_TIME)
 
                         send_bottleneck_flag=result[0]
                         migration_cost=result[1]
@@ -604,12 +609,12 @@ if __name__ == '__main__':
                             print "PhysicalVM_Partition_Map"
                             print PhysicalVM_Partition_Map
 
-                            if(hf.run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partition_map,vm_computetimesum_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map,PARTITION_SIZE,BANDWIDTH,UPPER_LIMIT,superstep,number_of_vm,vm_send_map,vm_receive_map)):
+                            if(hf.run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partition_map,vm_computetimesum_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map,PARTITION_SIZE,BANDWIDTH,UPPER_LIMIT,superstep,number_of_vm,vm_send_map,vm_receive_map,SERIALIZATION_TIME,DESERIALIZATION_TIME)):
                                 continue
                             else:
                                 hf.update_stats_at_end_of_superstep(bin_partition_map,bin_vm_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map)
                                 #
-                                result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
+                                result=hf.get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH,SERIALIZATION_TIME,DESERIALIZATION_TIME)
                                 #return (send_bottleneck_flag,migration_cost,bottleneck_vmid)
                                 migration_cost=result[1]
                                 #TODO: update the local matrix and paas the migration cost as it is not recomputed

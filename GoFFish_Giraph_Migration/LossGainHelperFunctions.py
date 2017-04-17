@@ -311,7 +311,7 @@ def get_send_receive_map(next_VMID_to_use,bin_vm_map,bin_partition_map,Partition
 
 ''' migration cost computation '''
 
-def get_migration_cost(VM_partition_send_map,VM_partition_receive_map,PARTITION_SIZE,BANDWIDTH):
+def get_migration_cost(VM_partition_send_map,VM_partition_receive_map,PARTITION_SIZE,BANDWIDTH, SERIALIZATION_TIME,DESERIALIZATION_TIME):
 
     #FIXME: we are assuming duplex b/w
 
@@ -337,7 +337,7 @@ def get_migration_cost(VM_partition_send_map,VM_partition_receive_map,PARTITION_
 
 
     # print "max_send_receive_partition_count_for_vm" +str(max_send_receive_partition_count_for_vm)
-    migration_cost=((max_send_receive_partition_count_for_vm*PARTITION_SIZE)/BANDWIDTH) *1000
+    migration_cost=(((max_send_receive_partition_count_for_vm*PARTITION_SIZE)/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
 
     return (send_bottleneck_flag,migration_cost,bottleneck_vmid)
 
@@ -900,7 +900,7 @@ def update_metrics_at_end_of_ss(superstep,vm_ss_active_map,vm_migration_ss_map,s
 ''' run avoid migration approach '''
 #NOTE: if return value is false, then the constrained is satisfied no need to increment vm, Return value true indicates constrained value not satisfied increment the vm
 
-def run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partition_map,vm_computetimesum_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map,PARTITION_SIZE,BANDWIDTH,UPPER_LIMIT,superstep,number_of_vm,vm_send_map,vm_receive_map):
+def run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partition_map,vm_computetimesum_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map,PARTITION_SIZE,BANDWIDTH,UPPER_LIMIT,superstep,number_of_vm,vm_send_map,vm_receive_map,SERIALIZATION_TIME,DESERIALIZATION_TIME):
 
     # print "vm_computetimesum_map"+ str(vm_computetimesum_map)
 
@@ -925,7 +925,7 @@ def run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partit
     while(positive_score_flag):
 
         # print "------------------------------------------------------------------------------------"
-        result=get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
+        result=get_migration_cost(vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH,SERIALIZATION_TIME,DESERIALIZATION_TIME)
 
         send_bottleneck_flag=result[0]
         migration_cost=result[1]
@@ -987,7 +987,7 @@ def run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partit
 
         migration_count=max_migration_partition_count(vm_send_map, vm_receive_map)
 
-        max_migration_time=(migration_count* PARTITION_SIZE/BANDWIDTH) *1000
+        max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
 
         ##plotting of compute+network cost per vm
         # pdf.savefig(plot_compute_network_pervm1(vm_computetimesum_map,vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH,superstep,number_of_vm,pdf))
