@@ -124,6 +124,9 @@ for filename in out_dir_list:
     # print source_partition
     #
     # print no_of_partitions
+    constraint=sys.argv[4]
+
+    max_constraint=sys.argv[5]
 
     #######################################################
     # exit()
@@ -229,23 +232,31 @@ metalist.append(coresec_list)
 
 print metalist
 
+axes = plt.gca()
 plt.xticks([1, 2, 3,4,5], ['Default', 'FFD', 'FFDM','FFDMPlanning','MinMax'])
 plt.title(graph_name+"_makespan")
 plt.ylabel("time in ms")
+ymax=max([sublist[-1] for sublist in makespan_list])
+axes.set_ylim([0,ymax+100])
 plt.violinplot(makespan_list)
-
 plt.savefig(plotfolder+"/"+graph_name+"_makespan.pdf")
 plt.close()
 
+axes = plt.gca()
 plt.xticks([1, 2, 3,4,5], ['Default', 'FFD', 'FFDM','FFDMPlanning','MinMax'])
 plt.ylabel("time in minutes")
+ymax=max([sublist[-1] for sublist in coremin_list])
+axes.set_ylim([0,ymax+1])
 plt.title(graph_name+"_core-minutes")
 plt.violinplot(coremin_list)
 plt.savefig(plotfolder+"/"+graph_name+"_coremin.pdf")
 plt.close()
 
+axes = plt.gca()
 plt.xticks([1, 2, 3,4,5], ['Default', 'FFD', 'FFDM','FFDMPlanning','MinMax'])
 plt.ylabel("time in seconds")
+ymax=max([sublist[-1] for sublist in coresec_list])
+axes.set_ylim([0,ymax+100])
 plt.title(graph_name+"_core-seconds")
 plt.violinplot(coresec_list)
 plt.savefig(plotfolder+"/"+graph_name+"_coresec.pdf")

@@ -201,6 +201,7 @@ if __name__ == '__main__':
             print "===================Superstep"+str(superstep)+"================"
 
             print "PhysicalVM_Partition_Map",PhysicalVM_Partition_Map
+            print "partTime",partTime
 
             # x=raw_input()
 
@@ -236,6 +237,7 @@ if __name__ == '__main__':
                 bin_partition_map={}
                 bin_vm_map={}
 
+                #FIXME: this for loop will fail for partitions which are active for the first time
                 for vm in PhysicalVM_Partition_Map.keys():
 
                     active_plist=[]
@@ -249,6 +251,10 @@ if __name__ == '__main__':
                         bin_partition_map[vm]=active_plist
                         bin_vm_map[vm]=vm
 
+                # print active_plist
+                # print "bin_vm_map",bin_vm_map
+                # print "bin_partition_map",bin_partition_map
+
                 vm_computetimesum_map={}
 
                 vm_computetimesum_map=hf.get_vm_comute_time(bin_partition_map,bin_vm_map,partTime)
@@ -259,6 +265,11 @@ if __name__ == '__main__':
                 vm_receive_map=result[1]
 
                 migration_cost=0.0
+
+
+                # print "bin_vm_map",bin_vm_map
+                # print "bin_partition_map",bin_partition_map
+
 
                 #TODO: update the local matrix and paas the migration cost as it is not recomputed
 
@@ -315,6 +326,9 @@ if __name__ == '__main__':
             bottlneck_vmid=result[2]
 
             ######### get compute time summation for all partitions in the VM######
+
+            # print "bin_vm_map",bin_vm_map
+            # print "bin_partition_map",bin_partition_map
 
             vm_computetimesum_map={}
 
