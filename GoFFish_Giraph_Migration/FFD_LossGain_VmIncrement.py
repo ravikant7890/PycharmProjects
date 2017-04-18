@@ -427,7 +427,10 @@ if __name__ == '__main__':
 
                     migration_count=hf.max_migration_partition_count(vm_send_map, vm_receive_map)
 
-                    max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
+                    if(migration_count==0):
+                        max_migration_time=0
+                    else:
+                        max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
 
 
                     # print "vm_send_map"

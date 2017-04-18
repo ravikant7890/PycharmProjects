@@ -232,7 +232,8 @@ if __name__ == '__main__':
 
             ####################################CASE WHEN maxTime< 1% of default makespan #########################################################################
             #TODO: remove the constraint when the maxTime is <= 1% of the default makespan
-            if(maxTime<=((DEFAULT_MAKESPAN/100.0)*5)):
+            #TODO: handle the case when a partition is not mapped yet.
+            if(maxTime<=((DEFAULT_MAKESPAN/100.0)*1)):
                 #TODO: form a bin_partition_map and bin_vm_map such that there is no migration and existing methods can be used
                 bin_partition_map={}
                 bin_vm_map={}
@@ -327,8 +328,11 @@ if __name__ == '__main__':
 
             ######### get compute time summation for all partitions in the VM######
 
-            # print "bin_vm_map",bin_vm_map
-            # print "bin_partition_map",bin_partition_map
+            print "bin_vm_map",bin_vm_map
+            print "bin_partition_map",bin_partition_map
+            print "UPPER_LIMIT",UPPER_LIMIT
+            print migration_cost
+            print maxTime
 
             vm_computetimesum_map={}
 
@@ -426,7 +430,11 @@ if __name__ == '__main__':
 
                     migration_count=hf.max_migration_partition_count(vm_send_map, vm_receive_map)
 
-                    max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+DESERIALIZATION_TIME+SERIALIZATION_TIME
+
+                    if(migration_count==0):
+                        max_migration_time=0
+                    else:
+                        max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+DESERIALIZATION_TIME+SERIALIZATION_TIME
 
                     ######## check for constraint #########################
 

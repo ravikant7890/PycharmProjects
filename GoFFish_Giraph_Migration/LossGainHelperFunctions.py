@@ -337,7 +337,10 @@ def get_migration_cost(VM_partition_send_map,VM_partition_receive_map,PARTITION_
 
 
     # print "max_send_receive_partition_count_for_vm" +str(max_send_receive_partition_count_for_vm)
-    migration_cost=(((max_send_receive_partition_count_for_vm*PARTITION_SIZE)/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
+    if(max_send_receive_partition_count_for_vm==0):
+        migration_cost=0
+    else:
+        migration_cost=(((max_send_receive_partition_count_for_vm*PARTITION_SIZE)/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
 
     return (send_bottleneck_flag,migration_cost,bottleneck_vmid)
 
