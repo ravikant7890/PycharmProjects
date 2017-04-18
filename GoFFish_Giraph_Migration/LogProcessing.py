@@ -4,6 +4,7 @@ import shutil
 import re
 import subprocess
 import matplotlib.pyplot as plt
+import pandas as pd
 
 parent_folder=sys.argv[1]
 
@@ -22,6 +23,9 @@ SERIALIZATION_TIME=(sys.argv[8])
 
 DESERIALIZATION_TIME=(sys.argv[9])
 
+df_makespan= pd.DataFrame(columns=('FileName', 'Default', 'FFD' ,'FFDM','FFDMPlanning','MinMax'))
+df_coremin = pd.DataFrame(columns=('FileName', 'Default', 'FFD' ,'FFDM','FFDMPlanning','MinMax'))
+df_coresec = pd.DataFrame(columns=('FileName', 'Default', 'FFD' ,'FFDM','FFDMPlanning','MinMax'))
 
 os.system("mkdir -p "+output_folder)
 os.system("mkdir -p "+simulation_folder)
@@ -109,8 +113,10 @@ for out_dir in os.popen(cmd).read().split("\n"):
 #commad for MinMax approach
 #python MinMax_FFD_LossGain_VMIncreament.py ORKT_40P_40W_1_SRCPID5.csv 5 40 10 100 15000
 
-
+count=0
 for filename in out_dir_list:
+
+    count+=1
 
     no_of_partitions=re.findall('\d+', filename.split("_")[0])[0]
 
@@ -222,6 +228,26 @@ for filename in out_dir_list:
     coresec_list[3].append(float(FFDLossGainVMIncrement.split(",")[2]))
     coresec_list[4].append(float(MinMax.split(",")[2]))
 
+    ####update the dataframes
+    # df_makespan= pd.DataFrame(columns=('FileName', 'Default', 'FFD' ,'FFDM','FFDMPlanning','MinMax'))
+    # df_coremin = pd.DataFrame(columns=('FileName', 'Default', 'FFD' ,'FFDM','FFDMPlanning','MinMax'))
+    # df_coresec = pd.DataFrame(columns=('FileName', 'Default', 'FFD' ,'FFDM','FFDMPlanning','MinMax'))
+
+
+    df_makespan = df_makespan.T
+    df_makespan[count]=[filename,float(default.split(",")[0]),float(FFD.split(",")[0]),float(FFDwithMigration.split(",")[0]),float(FFDLossGainVMIncrement.split(",")[0]),float(MinMax.split(",")[0])]
+    df_makespan = df_makespan.T
+
+
+    df_coremin = df_coremin.T
+    df_coremin[count]=[filename,float(default.split(",")[1]),float(FFD.split(",")[1]),float(FFDwithMigration.split(",")[1]),float(FFDLossGainVMIncrement.split(",")[1]),float(MinMax.split(",")[1])]
+    df_coremin = df_coremin.T
+
+
+    df_coresec = df_coresec.T
+    df_coresec[count]=[filename,float(default.split(",")[2]),float(FFD.split(",")[2]),float(FFDwithMigration.split(",")[2]),float(FFDLossGainVMIncrement.split(",")[2]),float(MinMax.split(",")[2])]
+    df_coresec = df_coresec.T
+
 
     # exit()
 
@@ -261,3 +287,7 @@ plt.title(graph_name+"_core-seconds")
 plt.violinplot(coresec_list)
 plt.savefig(plotfolder+"/"+graph_name+"_coresec.pdf")
 plt.close()
+
+df_makespan.to_csv(plotfolder+"/"+graph_name+"_makespan.csv")
+df_coremin.to_csv(plotfolder+"/"+graph_name+"_coremin.csv")
+df_coresec.to_csv(plotfolder+"/"+graph_name+"_coresec.csv")
