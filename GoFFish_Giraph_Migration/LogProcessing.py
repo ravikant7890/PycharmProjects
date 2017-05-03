@@ -1,3 +1,8 @@
+import matplotlib
+
+from pip.req.req_set import make_abstract_dist
+
+matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
 import  os
 import sys
 import shutil
@@ -98,10 +103,10 @@ for filename in out_dir_list:
     os.system("sed -i 1,2d "+output_folder+"/"+new_filename)
 
     # print new_filename
-    # command="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+new_filename+" "+simulation_folder+"/"+new_filename
+    # command="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+new_filename+" "+simulation_folder+"/"+new_filename
     # print command
     ####run the read_csv script to get the format required for simulation
-    os.system("python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+output_folder+"/"+new_filename+" "+simulation_folder+"/"+new_filename)
+    os.system("python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+output_folder+"/"+new_filename+" "+simulation_folder+"/"+new_filename)
 
 
 ################################################
@@ -151,7 +156,7 @@ for filename in out_dir_list:
 
     #######################################################
     # exit()
-    command_for_Default_FFD_FFDwithMigration="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+partition_size+" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+    command_for_Default_FFD_FFDwithMigration="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/FFD.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+partition_size+" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
     print "executing command ",command_for_Default_FFD_FFDwithMigration
 
@@ -169,7 +174,7 @@ for filename in out_dir_list:
     ####################################################################
     default_makspan=default.split(",")[0]
 
-    command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+    command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
 
     print "executing command ",command_for_FFD_LossGainVMIncrement
@@ -183,7 +188,7 @@ for filename in out_dir_list:
     while(FFDLossGainVMIncrement.split()[0]=="ERROR"):
         print "can not schedule with constraint ",constraint+" enter increased value"
         constraint=str(int(constraint)+5)
-        command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+        command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
         print "executing command ",command_for_FFD_LossGainVMIncrement
 
         result = subprocess.check_output(command_for_FFD_LossGainVMIncrement, shell=True)
@@ -199,7 +204,7 @@ for filename in out_dir_list:
 
 
 
-    command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  10 "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+    command_for_MinMax="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  10 "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
 
     print "executing command ",command_for_MinMax
@@ -213,7 +218,7 @@ for filename in out_dir_list:
     while(MinMax.split()[0]=="ERROR"):
         min_constraint=max_constraint
         max_constraint=str(int(max_constraint)+100)
-        command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  "+min_constraint+" "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+        command_for_MinMax="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  "+min_constraint+" "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
         print "executing command ",command_for_MinMax
 
         result = subprocess.check_output(command_for_MinMax, shell=True)
@@ -227,7 +232,7 @@ for filename in out_dir_list:
 
     ###########################################################
 
-    command_for_MaxFit="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MaxFitwithPinning.py "+simulation_folder+"/"+filename+" "+source_partition
+    command_for_MaxFit="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/MaxFitwithPinning.py "+simulation_folder+"/"+filename+" "+source_partition
     print "executing command ",command_for_MaxFit
 
     result = subprocess.check_output(command_for_MaxFit, shell=True)
@@ -290,7 +295,13 @@ metalist.append(makespan_list)
 metalist.append(coremin_list)
 metalist.append(coresec_list)
 
-print metalist
+import numpy as np
+
+# print makespan_list
+
+# exit()
+
+# print metalist
 
 
 font = {'family' : 'normal',
@@ -311,14 +322,88 @@ plt.ylabel("Makespan (seconds)")
 ymax=getmax(makespan_list)
 print ymax
 axes.set_ylim([0,ymax+20])
-plt.violinplot(makespan_list)
-plt.grid()
+# plt.violinplot(makespan_list)
+# plt.grid()
 # plt.minorticks_on()
 # plt.grid(b=True, which='major', color='b', linestyle='-')
 # plt.grid(b=True, which='minor', color='r', linestyle='--')
+fig = plt.figure(1, figsize=(9, 6))
+ax = fig.add_subplot(111)
+bp = ax.violinplot(makespan_list,showmedians=True,showmeans=True,showextrema=True)
+
+bp['cmeans'].set_color('b')
+bp['cmedians'].set_color('g')
+bp['cmaxes'].set_color('g')
+bp['cmins'].set_color('g')
+# bp['cmins'].
+# ax.set_ylabel('Execution Time(ms)',size=15)
+for pc in bp['bodies']:
+    pc.set_facecolor('skyblue')
+    pc.set_edgecolor('black')
+
+    pc.set_alpha(1)
+
+ax.yaxis.grid(which='minor', alpha=0.5)
+ax.yaxis.grid(which='major', alpha=0.5)
+ax.minorticks_on()
+
+
+from pylab import *
+
+mean=[]
+for l in makespan_list:
+
+    mean.append(sum(l)/len(l))
+
+
+
+medians=[]
+
+for l in makespan_list:
+    medians.append(median(l))
+
+#writing mean and median values
+for i in range(1,len(medians) + 1):
+	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red')
+
+for i in range(1,len(mean) + 1):
+	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple')
+
+#marking median with custom symbol
+inds = np.arange(1, len(medians) + 1)
+ax.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+
+
+quartile1_1,quartile2_1=np.percentile([makespan_list[0]], [25, 75], axis=1)
+quartile1_2,quartile2_2=np.percentile([makespan_list[1]], [25, 75], axis=1)
+quartile1_3,quartile2_3=np.percentile([makespan_list[2]], [25, 75], axis=1)
+quartile1_4,quartile2_4=np.percentile([makespan_list[3]], [25, 75], axis=1)
+quartile1_5,quartile2_5=np.percentile([makespan_list[4]], [25, 75], axis=1)
+quartile1_6,quartile2_6=np.percentile([makespan_list[5]], [25, 75], axis=1)
+#
+
+
+quartile1=[quartile1_1[0],quartile1_2[0],quartile1_3[0],quartile1_4[0],quartile1_5[0],quartile1_6[0]]
+quartile3=[quartile2_1[0],quartile2_2[0],quartile2_3[0],quartile2_4[0],quartile2_5[0],quartile2_6[0]]
+inds = np.arange(1, len(medians) + 1)
+ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
+
+# medians=[median(dSpout['vertex'].dropna().tolist()),median(dSpout['bfs'].dropna().tolist()),median(dSpout['select'].dropna().tolist()),median(dSpout['reach'].dropna().tolist()),median(dSpout['report'].dropna().tolist())]
+
+
+fig = matplotlib.pyplot.gcf()
+fig.set_size_inches(15.5, 6.5)
+
+# plt.show()
 
 plt.savefig(plotfolder+"/"+graph_name+"_makespan.pdf")
 plt.close()
+
+os.system("pdfcrop "+plotfolder+"/"+graph_name+"_makespan.pdf")
+os.system("mv "+plotfolder+"/"+graph_name+"_makespan-crop.pdf " +plotfolder+"/"+graph_name+"_makespan.pdf")
+
+########################################
+
 
 axes = plt.gca()
 plt.xticks([1, 2, 3,4,5,6], ['Default', 'FFD', 'FFDM','FFDMP','MinMax','MF/P'])
@@ -328,15 +413,85 @@ ymax=getmax(coremin_list)
 print ymax
 axes.set_ylim([0,ymax+5])
 # plt.title(graph_name+"_core-minutes")
-plt.violinplot(coremin_list)
-plt.grid()
-# plt.minorticks_on()
-# plt.grid(b=True, which='major', color='b', linestyle='-')
-# plt.grid(b=True, which='minor', color='r', linestyle='--')
+fig = plt.figure(1, figsize=(9, 6))
+ax = fig.add_subplot(111)
+bp = ax.violinplot(coremin_list,showmedians=True,showmeans=True,showextrema=True)
+
+bp['cmeans'].set_color('b')
+bp['cmedians'].set_color('g')
+bp['cmaxes'].set_color('g')
+bp['cmins'].set_color('g')
+# bp['cmins'].
+# ax.set_ylabel('Execution Time(ms)',size=15)
+for pc in bp['bodies']:
+    pc.set_facecolor('skyblue')
+    pc.set_edgecolor('black')
+
+    pc.set_alpha(1)
+
+ax.yaxis.grid(which='minor', alpha=0.5)
+ax.yaxis.grid(which='major', alpha=0.5)
+ax.minorticks_on()
+
+
+from pylab import *
+
+mean=[]
+for l in coremin_list:
+
+    mean.append(sum(l)/len(l))
+
+
+
+medians=[]
+
+for l in coremin_list:
+    medians.append(median(l))
+
+#writing mean and median values
+for i in range(1,len(medians) + 1):
+	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red')
+
+for i in range(1,len(mean) + 1):
+	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple')
+
+#marking median with custom symbol
+inds = np.arange(1, len(medians) + 1)
+ax.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+
+
+quartile1_1,quartile2_1=np.percentile([coremin_list[0]], [25, 75], axis=1)
+quartile1_2,quartile2_2=np.percentile([coremin_list[1]], [25, 75], axis=1)
+quartile1_3,quartile2_3=np.percentile([coremin_list[2]], [25, 75], axis=1)
+quartile1_4,quartile2_4=np.percentile([coremin_list[3]], [25, 75], axis=1)
+quartile1_5,quartile2_5=np.percentile([coremin_list[4]], [25, 75], axis=1)
+quartile1_6,quartile2_6=np.percentile([coremin_list[5]], [25, 75], axis=1)
+#
+
+
+quartile1=[quartile1_1[0],quartile1_2[0],quartile1_3[0],quartile1_4[0],quartile1_5[0],quartile1_6[0]]
+quartile3=[quartile2_1[0],quartile2_2[0],quartile2_3[0],quartile2_4[0],quartile2_5[0],quartile2_6[0]]
+inds = np.arange(1, len(medians) + 1)
+ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
+
+# medians=[median(dSpout['vertex'].dropna().tolist()),median(dSpout['bfs'].dropna().tolist()),median(dSpout['select'].dropna().tolist()),median(dSpout['reach'].dropna().tolist()),median(dSpout['report'].dropna().tolist())]
+
+
+fig = matplotlib.pyplot.gcf()
+fig.set_size_inches(15.5, 6.5)
+
+# plt.show()
 
 plt.savefig(plotfolder+"/"+graph_name+"_coremin.pdf")
 plt.close()
 
+os.system("pdfcrop "+plotfolder+"/"+graph_name+"_coremin.pdf")
+os.system("mv "+plotfolder+"/"+graph_name+"_coremin-crop.pdf " +plotfolder+"/"+graph_name+"_coremin.pdf")
+
+
+
+
+################################################################################
 axes = plt.gca()
 plt.xticks([1, 2, 3,4,5,6], ['Default', 'FFD', 'FFDM','FFDMP','MinMax','MF/P'])
 plt.ylabel("VM Used Core-Secs")
@@ -345,15 +500,85 @@ ymax=getmax(coresec_list)
 print ymax
 axes.set_ylim([0,ymax+100])
 # plt.title(graph_name+"_core-seconds")
-plt.violinplot(coresec_list)
-plt.grid()
-# plt.minorticks_on()
-# plt.grid(b=True, which='major', color='b', linestyle='-')
-# plt.grid(b=True, which='minor', color='r', linestyle='--')
+fig = plt.figure(1, figsize=(9, 6))
+ax = fig.add_subplot(111)
+bp = ax.violinplot(coresec_list,showmedians=True,showmeans=True,showextrema=True)
+
+bp['cmeans'].set_color('b')
+bp['cmedians'].set_color('g')
+bp['cmaxes'].set_color('g')
+bp['cmins'].set_color('g')
+# bp['cmins'].
+# ax.set_ylabel('Execution Time(ms)',size=15)
+for pc in bp['bodies']:
+    pc.set_facecolor('skyblue')
+    pc.set_edgecolor('black')
+
+    pc.set_alpha(1)
+
+ax.yaxis.grid(which='minor', alpha=0.5)
+ax.yaxis.grid(which='major', alpha=0.5)
+ax.minorticks_on()
+
+
+from pylab import *
+
+mean=[]
+for l in coresec_list:
+
+    mean.append(sum(l)/len(l))
+
+
+
+medians=[]
+
+for l in coresec_list:
+    medians.append(median(l))
+
+#writing mean and median values
+for i in range(1,len(medians) + 1):
+	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red')
+
+for i in range(1,len(mean) + 1):
+	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple')
+
+#marking median with custom symbol
+inds = np.arange(1, len(medians) + 1)
+ax.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+
+
+quartile1_1,quartile2_1=np.percentile([coresec_list[0]], [25, 75], axis=1)
+quartile1_2,quartile2_2=np.percentile([coresec_list[1]], [25, 75], axis=1)
+quartile1_3,quartile2_3=np.percentile([coresec_list[2]], [25, 75], axis=1)
+quartile1_4,quartile2_4=np.percentile([coresec_list[3]], [25, 75], axis=1)
+quartile1_5,quartile2_5=np.percentile([coresec_list[4]], [25, 75], axis=1)
+quartile1_6,quartile2_6=np.percentile([coresec_list[5]], [25, 75], axis=1)
+#
+
+
+quartile1=[quartile1_1[0],quartile1_2[0],quartile1_3[0],quartile1_4[0],quartile1_5[0],quartile1_6[0]]
+quartile3=[quartile2_1[0],quartile2_2[0],quartile2_3[0],quartile2_4[0],quartile2_5[0],quartile2_6[0]]
+inds = np.arange(1, len(medians) + 1)
+ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
+
+# medians=[median(dSpout['vertex'].dropna().tolist()),median(dSpout['bfs'].dropna().tolist()),median(dSpout['select'].dropna().tolist()),median(dSpout['reach'].dropna().tolist()),median(dSpout['report'].dropna().tolist())]
+
+
+fig = matplotlib.pyplot.gcf()
+fig.set_size_inches(15.5, 6.5)
+
+# plt.show()
 
 plt.savefig(plotfolder+"/"+graph_name+"_coresec.pdf")
 plt.close()
 
+
+os.system("pdfcrop "+plotfolder+"/"+graph_name+"_coresec.pdf")
+os.system("mv "+plotfolder+"/"+graph_name+"_coresec-crop.pdf " +plotfolder+"/"+graph_name+"_coresec.pdf")
+
+
+
+################################################################################
 df_makespan.to_csv(plotfolder+"/"+graph_name+"_makespan.csv")
 df_coremin.to_csv(plotfolder+"/"+graph_name+"_coremin.csv")
 df_coresec.to_csv(plotfolder+"/"+graph_name+"_coresec.csv")
