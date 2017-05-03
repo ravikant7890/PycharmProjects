@@ -453,8 +453,8 @@ def plot_compute_network_pervm1(vm_ActivePartition_time,vm_send_map,vm_receive_m
     ind =np.arange(len(network_cost_list))
 
 
-    print "network_cost_list",network_cost_list
-    print "compute_cost_list",compute_cost_list
+    # print "network_cost_list",network_cost_list
+    # print "compute_cost_list",compute_cost_list
 
     # my_randoms=[]
     # import random
@@ -464,19 +464,19 @@ def plot_compute_network_pervm1(vm_ActivePartition_time,vm_send_map,vm_receive_m
     # print len(network_cost_list)
     # print len(vm_ActivePartition_time)
     # a=np.array(my_randoms)
-    a=np.array(network_cost_list)
-    b=np.array(compute_cost_list)
+    # a=np.array(network_cost_list)
+    # b=np.array(compute_cost_list)
 
     fig = plt.figure()
-
-    p1 = plt.bar(ind, a, 1, color='#ff3333')
-    p2 = plt.bar(ind, b, 1, color='#33ff33', bottom=sum([max(network_cost_list)]))
+    #
+    # p1 = plt.bar(ind, a, 1, color='#ff3333')
+    # p2 = plt.bar(ind, b, 1, color='#33ff33', bottom=sum([max(network_cost_list)]))
     # p2 = plt.bar(ind, b, 1, color='#33ff33', bottom=sum([max(my_randoms)]))
 
-    s="superstep,"+str(superstep)+",number_of_vm,"+str(number_of_vm)
-    fig.suptitle(s,fontsize=18)
-    plt.ylabel("time in ms")
-    plt.xlabel("vm")
+    # s="superstep,"+str(superstep)+",number_of_vm,"+str(number_of_vm)
+    # fig.suptitle(s,fontsize=18)
+    # plt.ylabel("time in ms")
+    # plt.xlabel("vm")
 
     # plt.show()
     # pdf.savefig(fig, bbox_inches='tight')
@@ -609,12 +609,12 @@ def avoid_migration_for_partition(max_score_pid,send_bottleneck_flag,bin_partiti
     receiver_vm_id =-1
     sender_vm=-1
 
-    print "vm_send_map",vm_send_map
-    print "vm_receive_map",vm_receive_map
-    print "bottleneck_vmid",bottleneck_vmid
-    print "send_bottleneck_flag",send_bottleneck_flag
-    print "max_score_pid",max_score_pid
-    print "PhysicalVM_Partition_Map",PhysicalVM_Partition_Map
+    # print "vm_send_map",vm_send_map
+    # print "vm_receive_map",vm_receive_map
+    # print "bottleneck_vmid",bottleneck_vmid
+    # print "send_bottleneck_flag",send_bottleneck_flag
+    # print "max_score_pid",max_score_pid
+    # print "PhysicalVM_Partition_Map",PhysicalVM_Partition_Map
 
     if(send_bottleneck_flag):
         #TODO: get the vm where pid is going to be hosted in current superstep decrement its runtime and increment sender vms runtime and check for constraint
@@ -719,8 +719,8 @@ def avoid_migration_for_partition(max_score_pid,send_bottleneck_flag,bin_partiti
         vm_computetimesum_map[sender_vm]+= partTime[max_score_pid]
         vm_computetimesum_map[bottleneck_vmid]-=partTime[max_score_pid]
 
-        print "sender_vm",sender_vm
-        print "bottleneck_vmid",bottleneck_vmid
+        # print "sender_vm",sender_vm
+        # print "bottleneck_vmid",bottleneck_vmid
         send_list=vm_send_map[sender_vm]
         send_list.remove(max_score_pid)
         vm_send_map[sender_vm]=send_list
@@ -833,6 +833,9 @@ def update_stats_at_end_of_superstep(bin_partition_map,bin_vm_map,Partition_Phys
                 # print "l_old "+str(l_old)
                 l_old.remove(partition)
                 PhysicalVM_Partition_Map[old_vm]=l_old
+            else:
+                # //input format partitionID,superstep,workerID
+                print str(partition)+",1,"+str(mapped_vm)
 
             l_new=PhysicalVM_Partition_Map[mapped_vm]
             l_new.append(partition)
@@ -870,8 +873,9 @@ def update_metrics_at_end_of_ss(superstep,vm_ss_active_map,vm_migration_ss_map,s
                 vm_ss_active_map[mapped_vm]=[superstep]
 
         else:
-            print "empty bin in ss ",superstep
-            print bin_partition_map
+            pass
+            # print "empty bin in ss ",superstep
+            # print bin_partition_map
     #determine the vms involved in migration based on send and receive maps
     migration_set=set()
 

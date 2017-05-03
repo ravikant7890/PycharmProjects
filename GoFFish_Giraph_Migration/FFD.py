@@ -890,8 +890,8 @@ if __name__ == '__main__':
 
     ####first line for default then FFD and last for FFDwithMigration
 
-    print str(makespan)+","+str((math.ceil(makespan/60000.0))*number_of_partitions)+","+str(makespan*number_of_partitions/1000.0)
+    print str(makespan/1000.0)+","+str((math.ceil(makespan/60000.0))*number_of_partitions)+","+str(makespan*number_of_partitions/1000.0)
 
-    print str(makespan)+","+str(vmMins)+","+str(vmCoreMilliSec/1000.0)
+    print str(makespan/1000.0)+","+str(vmMins)+","+str(vmCoreMilliSec/1000.0)
 
-    print str(makespan_with_migration)+","+str(core_min)+","+str(core_sec)
+    print str(makespan_with_migration/1000.0)+","+str(core_min)+","+str(core_sec)
