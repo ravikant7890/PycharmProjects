@@ -43,3 +43,5 @@ G=nx.fast_gnp_random_graph(100,0.2)
 print G.adjacency_list()
 
 nx.write_adjlist(G,"adjlist.txt")
+
+nx.write_edgelist(G, "test.edgelist.txt", data=False)

@@ -834,6 +834,7 @@ def update_stats_at_end_of_superstep(bin_partition_map,bin_vm_map,Partition_Phys
                 l_old.remove(partition)
                 PhysicalVM_Partition_Map[old_vm]=l_old
             else:
+                # pass
                 # //input format partitionID,superstep,workerID
                 print str(partition)+",1,"+str(mapped_vm)
 
@@ -900,6 +901,8 @@ def update_metrics_at_end_of_ss(superstep,vm_ss_active_map,vm_migration_ss_map,s
     sstime_with_migration[superstep]=max(vm_computetimesum_map.values())+migration_cost
 
     makespan_with_migration+=max(vm_computetimesum_map.values())+migration_cost
+
+    print "SS,"+str(superstep)+",ss_time,"+str(sstime_with_migration[superstep])+",migrationCost,"+str(migration_cost)
 
     return makespan_with_migration
 #####################################################################

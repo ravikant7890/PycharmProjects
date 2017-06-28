@@ -10,6 +10,8 @@ import re
 import subprocess
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
+
 
 parent_folder=sys.argv[1]
 
@@ -19,7 +21,7 @@ simulation_folder=sys.argv[3]
 constraint=sys.argv[4]
 
 max_constraint=sys.argv[5]
-partition_size=sys.argv[6]
+partition_size=sys.argv[6] #in case of value migration-- the size of the distance map size
 
 plotfolder=sys.argv[7]
 
@@ -106,7 +108,7 @@ for filename in out_dir_list:
     # command="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+new_filename+" "+simulation_folder+"/"+new_filename
     # print command
     ####run the read_csv script to get the format required for simulation
-    os.system("python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+output_folder+"/"+new_filename+" "+simulation_folder+"/"+new_filename)
+    os.system("python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/read_csv.py "+output_folder+"/"+new_filename+" "+simulation_folder+"/"+new_filename)
 
 
 ################################################
@@ -156,7 +158,7 @@ for filename in out_dir_list:
 
     #######################################################
     # exit()
-    command_for_Default_FFD_FFDwithMigration="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/FFD.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+partition_size+" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+    command_for_Default_FFD_FFDwithMigration="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+partition_size+" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
     print "executing command ",command_for_Default_FFD_FFDwithMigration
 
@@ -174,7 +176,7 @@ for filename in out_dir_list:
     ####################################################################
     default_makspan=default.split(",")[0]
 
-    command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+    command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
 
     print "executing command ",command_for_FFD_LossGainVMIncrement
@@ -188,7 +190,7 @@ for filename in out_dir_list:
     while(FFDLossGainVMIncrement.split()[0]=="ERROR"):
         print "can not schedule with constraint ",constraint+" enter increased value"
         constraint=str(int(constraint)+5)
-        command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+        command_for_FFD_LossGainVMIncrement="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/FFD_LossGain_VmIncrement.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+" "+constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
         print "executing command ",command_for_FFD_LossGainVMIncrement
 
         result = subprocess.check_output(command_for_FFD_LossGainVMIncrement, shell=True)
@@ -204,7 +206,7 @@ for filename in out_dir_list:
 
 
 
-    command_for_MinMax="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  10 "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+    command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  10 "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
 
 
     print "executing command ",command_for_MinMax
@@ -218,7 +220,7 @@ for filename in out_dir_list:
     while(MinMax.split()[0]=="ERROR"):
         min_constraint=max_constraint
         max_constraint=str(int(max_constraint)+100)
-        command_for_MinMax="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  "+min_constraint+" "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
+        command_for_MinMax="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MinMax_FFD_LossGain_VMIncreament.py "+simulation_folder+"/"+filename+" "+source_partition+" "+no_of_partitions+"  "+min_constraint+" "+max_constraint+" "+default_makspan+" "+partition_size +" "+SERIALIZATION_TIME+" "+DESERIALIZATION_TIME
         print "executing command ",command_for_MinMax
 
         result = subprocess.check_output(command_for_MinMax, shell=True)
@@ -232,7 +234,7 @@ for filename in out_dir_list:
 
     ###########################################################
 
-    command_for_MaxFit="python /home/ravikant/PycharmProjects/PycharmProjects/GoFFish_Giraph_Migration/MaxFitwithPinning.py "+simulation_folder+"/"+filename+" "+source_partition
+    command_for_MaxFit="python /home/ravikant/PycharmProjects/GoFFish_Giraph_Migration/MaxFitwithPinning.py "+simulation_folder+"/"+filename+" "+source_partition
     print "executing command ",command_for_MaxFit
 
     result = subprocess.check_output(command_for_MaxFit, shell=True)
@@ -327,7 +329,7 @@ axes.set_ylim([0,ymax+20])
 # plt.minorticks_on()
 # plt.grid(b=True, which='major', color='b', linestyle='-')
 # plt.grid(b=True, which='minor', color='r', linestyle='--')
-fig = plt.figure(1, figsize=(9, 6))
+fig = plt.figure(1,  figsize=(9, 6))
 ax = fig.add_subplot(111)
 bp = ax.violinplot(makespan_list,showmedians=True,showmeans=True,showextrema=True)
 
@@ -338,7 +340,7 @@ bp['cmins'].set_color('g')
 # bp['cmins'].
 # ax.set_ylabel('Execution Time(ms)',size=15)
 for pc in bp['bodies']:
-    pc.set_facecolor('skyblue')
+    pc.set_facecolor('#EEE685')
     pc.set_edgecolor('black')
 
     pc.set_alpha(1)
@@ -364,10 +366,10 @@ for l in makespan_list:
 
 #writing mean and median values
 for i in range(1,len(medians) + 1):
-	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red')
+	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red',fontsize=12)
 
 for i in range(1,len(mean) + 1):
-	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple')
+	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple',fontsize=12)
 
 #marking median with custom symbol
 inds = np.arange(1, len(medians) + 1)
@@ -392,7 +394,7 @@ ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
 
 
 fig = matplotlib.pyplot.gcf()
-fig.set_size_inches(15.5, 6.5)
+# fig.set_size_inches(15.5, 6.5)
 
 # plt.show()
 
@@ -424,7 +426,7 @@ bp['cmins'].set_color('g')
 # bp['cmins'].
 # ax.set_ylabel('Execution Time(ms)',size=15)
 for pc in bp['bodies']:
-    pc.set_facecolor('skyblue')
+    pc.set_facecolor('#EEE685')
     pc.set_edgecolor('black')
 
     pc.set_alpha(1)
@@ -450,10 +452,10 @@ for l in coremin_list:
 
 #writing mean and median values
 for i in range(1,len(medians) + 1):
-	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red')
+	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red',fontsize=12)
 
 for i in range(1,len(mean) + 1):
-	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple')
+	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple',fontsize=12)
 
 #marking median with custom symbol
 inds = np.arange(1, len(medians) + 1)
@@ -478,7 +480,7 @@ ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
 
 
 fig = matplotlib.pyplot.gcf()
-fig.set_size_inches(15.5, 6.5)
+# fig.set_size_inches(15.5, 6.5)
 
 # plt.show()
 
@@ -511,7 +513,7 @@ bp['cmins'].set_color('g')
 # bp['cmins'].
 # ax.set_ylabel('Execution Time(ms)',size=15)
 for pc in bp['bodies']:
-    pc.set_facecolor('skyblue')
+    pc.set_facecolor('#EEE685')
     pc.set_edgecolor('black')
 
     pc.set_alpha(1)
@@ -537,10 +539,10 @@ for l in coresec_list:
 
 #writing mean and median values
 for i in range(1,len(medians) + 1):
-	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red')
+	text(i,medians[i-1],'%.1f' % medians[i-1],horizontalalignment='right',color='red',fontsize=12)
 
 for i in range(1,len(mean) + 1):
-	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple')
+	text(i,mean[i-1],'%.1f' % mean[i-1],horizontalalignment='left',color='purple',fontsize=12)
 
 #marking median with custom symbol
 inds = np.arange(1, len(medians) + 1)
@@ -565,7 +567,7 @@ ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
 
 
 fig = matplotlib.pyplot.gcf()
-fig.set_size_inches(15.5, 6.5)
+# fig.set_size_inches(15.5, 6.5)
 
 # plt.show()
 

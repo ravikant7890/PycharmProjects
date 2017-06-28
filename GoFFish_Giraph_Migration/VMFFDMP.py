@@ -12,42 +12,16 @@ from sys import maxint
 import operator
 import LossGainHelperFunctions as hf
 
-'''
-To get the metrics (superstep_time,migration_time)-- uncomment the line in update_metrics_at_end_of_ss()
 
-Output format-- pid,ss,wid
-
-# In this approach we get one additional parameter Umax, while we call the constraint value as Umin.
-#
-# We try to map partitions to VMs s.t. Umin is satisfied using (FFD_LossGain_VMIncreament) approach.
-#
-# If satisfied:
-#     superstep++
-# else:
-#     while(constraint is not satisfied )
-#
-#         increase the threshould by delta
-#
-#         run FFD_LossGain_VMIncreament
-#
-#         if(constraint satisfied)
-#             superstep++
-#             break
-#
-#         else if (threshold > Umax)
-#             exit
-
-
-'''
 if __name__ == '__main__':
 
     ##### input parsing #################################################
     startTime = int(round(time.time() * 1000))
 
-    if (len(sys.argv)!=10):
-        print "Usage FDD_with_LossGain.py file_name source_partition number_of_partitions min_constraint_val max_constraint_val DEFAULT_MAKESPAN partition_size serialization_time deserialization_time"
+    if (len(sys.argv)!=9):
+        print "Usage FDD_with_LossGain.py file_name source_partition number_of_partitions constraint_val DEFAULT_MAKESPAN partition_size SERIALIZATION_TIME DESERIALIZATION_TIME"
         print "Example:"
-        print "FDD_with_LossGain.py test.csv 4 40 10 100 20000 11032 30773"
+        print "FDD_with_LossGain.py test.csv 4 40 20 20000 50.5 12015 13045"
         print "columns in test.csv PartitionID,SubgraphID,SuperStep,ComputeTime"
         quit()
 
@@ -59,21 +33,18 @@ if __name__ == '__main__':
 
     input_csv=sys.argv[1]
 
+
     number_of_partitions=int(sys.argv[3])
 
-    MIN_CONSTRAINT_VALUE=int(sys.argv[4])
+    CONSTRAINT_VALUE=int(sys.argv[4])
 
-    MAX_CONSTRAINT_VALUE=int(sys.argv[5])
+    DEFAULT_MAKESPAN=float(sys.argv[5])
 
-    DEFAULT_MAKESPAN=float(sys.argv[6])
+    PARTITION_SIZE=float(sys.argv[6]) #MB
 
-    PARTITION_SIZE=float(sys.argv[7]) #MB
+    SERIALIZATION_TIME=float(sys.argv[7])
 
-    SERIALIZATION_TIME=float(sys.argv[8])
-
-    DESERIALIZATION_TIME=float(sys.argv[9])
-
-
+    DESERIALIZATION_TIME=float(sys.argv[8])
     ######################### METRICS+ DS TO BE USED #######################
 
     Superstep_time_map={}#old metric can be used for default case
@@ -89,12 +60,6 @@ if __name__ == '__main__':
     for i in range(0,number_of_partitions+1):
         Partition_PhysicalVM_Map[i]=-1
 
-
-    DELTA=0.0
-
-    CONSTRAINT_VALUE=MIN_CONSTRAINT_VALUE+DELTA
-
-    # DELTA+=10
 
     vm_ss_active_map={}##map gives a given VM(key)--> is active in which SS(value)
     vm_migration_ss_map={}##VM->SS will indicate supersteps in which VMs need to send/receive partitions
@@ -116,6 +81,7 @@ if __name__ == '__main__':
     Physical_VM_CoreSec_map={}
 
     ############################################################################
+    max_partition_vm_list=0
 
 ######################## Superstep  Execution ############################################
 
@@ -142,11 +108,9 @@ if __name__ == '__main__':
     #(columns=('Superstep','ActivePartitions' ,'ActiveVM','MigrationCost' ,'MAX_TIME','MAX_TIME_with_binPacking' ,'Total_TIME'))
     df = df.T
 
-    # print df
+    print df
 
     sstime_with_migration[1]=maxTime
-
-    print "SS,0,"+str(maxTime)
 
     makespan_with_migration+=maxTime
     PhysicalVM_Partition_Map[next_VMID_to_use]=[source_partition] #Assigned source partition to VM 1
@@ -154,11 +118,8 @@ if __name__ == '__main__':
 
     vm_ss_active_map[next_VMID_to_use]=[1]#value is list of supersteps in which the vm is active (for computation)
 
-    # //input format partitionID,superstep,workerID
-    print str(source_partition)+",1,0"
-
     next_VMID_to_use+=1
-    # print PhysicalVM_Partition_Map
+    print PhysicalVM_Partition_Map
 
 
     ################# From Superstep 2 onwards ######################################
@@ -166,31 +127,10 @@ if __name__ == '__main__':
     partTime={}
     superstep=2
     flag=1
-
-    prevSuperstep=1
-
     ##################Read the input data####################
     while flag ==1: #while there are more supersteps
 
         partTime.clear()
-
-        if(superstep==prevSuperstep):
-            DELTA+=10
-        else:
-            DELTA=MIN_CONSTRAINT_VALUE
-            prevSuperstep=superstep
-
-        # print"====================SS"+str(superstep)+"======================"
-
-        CONSTRAINT_VALUE=DELTA
-
-        # print "CONSTRAINT_VALUE",CONSTRAINT_VALUE,"superstep",superstep
-
-        if(CONSTRAINT_VALUE==MAX_CONSTRAINT_VALUE):
-            print "ERROR can not schedule with constraint "+str(MAX_CONSTRAINT_VALUE)+" for superstep "+str(superstep)
-            exit()
-
-
 
         flag=0
         f = open(sys.argv[1])
@@ -209,10 +149,7 @@ if __name__ == '__main__':
         #inv_map = {v: k for k, v in partTime.items()}
         if(flag==1):#while there are more supersteps
 
-            # print "===================Superstep"+str(superstep)+"================"
-
-            # print "PhysicalVM_Partition_Map",PhysicalVM_Partition_Map
-            # print "partTime",partTime
+            print "===================Superstep"+str(superstep)+"================"
 
             # x=raw_input()
 
@@ -243,13 +180,11 @@ if __name__ == '__main__':
 
             ####################################CASE WHEN maxTime< 1% of default makespan #########################################################################
             #TODO: remove the constraint when the maxTime is <= 1% of the default makespan
-            #TODO: handle the case when a partition is not mapped yet.
-            if(maxTime<=((DEFAULT_MAKESPAN/100.0)*10)):
+            if(maxTime<=((DEFAULT_MAKESPAN*1000)/100.0)):
                 #TODO: form a bin_partition_map and bin_vm_map such that there is no migration and existing methods can be used
                 bin_partition_map={}
                 bin_vm_map={}
 
-                #FIXME: this for loop will fail for partitions which are active for the first time
                 for vm in PhysicalVM_Partition_Map.keys():
 
                     active_plist=[]
@@ -263,10 +198,6 @@ if __name__ == '__main__':
                         bin_partition_map[vm]=active_plist
                         bin_vm_map[vm]=vm
 
-                # print active_plist
-                # print "bin_vm_map",bin_vm_map
-                # print "bin_partition_map",bin_partition_map
-
                 vm_computetimesum_map={}
 
                 vm_computetimesum_map=hf.get_vm_comute_time(bin_partition_map,bin_vm_map,partTime)
@@ -278,10 +209,32 @@ if __name__ == '__main__':
 
                 migration_cost=0.0
 
-
-                # print "bin_vm_map",bin_vm_map
-                # print "bin_partition_map",bin_partition_map
-
+                #
+                # print "partTime",partTime
+                #
+                # print "PhysicalVM_Partition_Map"
+                # print PhysicalVM_Partition_Map
+                #
+                # print "Partition_PhysicalVM_Map"
+                # print Partition_PhysicalVM_Map
+                #
+                # print "bin_partition_map"
+                #
+                # print bin_partition_map
+                #
+                # print "bin_vm_map"
+                # print bin_vm_map
+                #
+                # print "migration_cost",migration_cost
+                #
+                # print "vm_computetimesum_map",vm_computetimesum_map
+                #
+                # print "superstep",superstep
+                #
+                #
+                # print vm_send_map
+                # print vm_receive_map
+                # exit()
 
                 #TODO: update the local matrix and paas the migration cost as it is not recomputed
 
@@ -296,21 +249,13 @@ if __name__ == '__main__':
                 #(columns=('Superstep','ActivePartitions' ,'ActiveVM','MigrationCost' ,'MAX_TIME','MAX_TIME_with_binPacking' ,'Total_TIME'))
                 df = df.T
 
-                # #TODO:remove the exit
-                # exit()
-                for i in range(0,number_of_partitions):
-                    if(Partition_PhysicalVM_Map[i]!= -1):
-                        # //input format partitionID,superstep,workerID
-                        print str(i)+","+str(superstep)+","+str(Partition_PhysicalVM_Map[i])
-
-
                 superstep+=1
                 continue
 
             ########################################################################################################################################################
 
             ''' Preference 1 : RUN FFD '''
-            # print "running Preference 1 : RUN FFD"
+            print "running Preference 1 : RUN FFD"
 
             bin_partition_map={}
 
@@ -345,21 +290,40 @@ if __name__ == '__main__':
 
             ######### get compute time summation for all partitions in the VM######
 
-            # print "bin_vm_map",bin_vm_map
-            # print "bin_partition_map",bin_partition_map
-            # print "UPPER_LIMIT",UPPER_LIMIT
-            # print migration_cost
-            # print maxTime
-
             vm_computetimesum_map={}
 
             vm_computetimesum_map=hf.get_vm_comute_time(bin_partition_map,bin_vm_map,partTime)
+
+            # if(superstep==4):
+            #
+            #     print "partTime",partTime
+            #
+            #     print "PhysicalVM_Partition_Map"
+            #     print PhysicalVM_Partition_Map
+            #
+            #     print "Partition_PhysicalVM_Map"
+            #     print Partition_PhysicalVM_Map
+            #
+            #     print "bin_partition_map"
+            #
+            #     print bin_partition_map
+            #
+            #     print "bin_vm_map"
+            #     print bin_vm_map
+            #
+            #     print "migration_cost",migration_cost
+            #
+            #     print "vm_computetimesum_map",vm_computetimesum_map
+
+
+            ##plotting of compute+network cost per vm
+            # hf.plot_compute_network_pervm(vm_computetimesum_map,vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
 
             ################constraint check ########################
 
             if(migration_cost + maxTime <= UPPER_LIMIT): ##FFD check for constraint
 
-                # print "**FFD solution satisfied the constraint**"
+                print "**FFD solution satisfied the constraint**"
 
                 ## TODO: implement a function to update metrics update: PhysicalVM_Partition_Map & Partition_PhysicalVM_Map
                 hf.update_stats_at_end_of_superstep(bin_partition_map,bin_vm_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map)
@@ -376,11 +340,10 @@ if __name__ == '__main__':
                 #(columns=('Superstep','ActivePartitions' ,'ActiveVM','MigrationCost' ,'MAX_TIME','MAX_TIME_with_binPacking' ,'Total_TIME'))
                 df = df.T
 
-                # #TODO:remove the exit
-                # exit()
-                for i in range(0,number_of_partitions):
-                    if(Partition_PhysicalVM_Map[i]!= -1):
-                        print str(i)+","+str(superstep)+","+str(Partition_PhysicalVM_Map[i])
+                for vm in PhysicalVM_Partition_Map.keys():
+
+                    if(len(PhysicalVM_Partition_Map[vm]) > max_partition_vm_list):
+                        max_partition_vm_list=len(PhysicalVM_Partition_Map[vm])
 
 
                 superstep+=1
@@ -391,7 +354,7 @@ if __name__ == '__main__':
 
                 ''' Preference 2: LOSS GAIN APPROACH by avoiding migration '''
                 #FIXME: updates made in FFD are still valid here
-                # print "******************Preference 2: LOSS GAIN APPROACH by avoiding migration*************"
+                print "******************Preference 2: LOSS GAIN APPROACH by avoiding migration*************"
 
                 #continue till no more partition with positive score is found or constrint is satisfied
                 positive_score_flag=1
@@ -427,8 +390,8 @@ if __name__ == '__main__':
                     partition_score=result[0]
                     max_score_pid=result[1]
 
-                    # print "partition_score"
-                    # print partition_score
+                    print "partition_score"
+                    print partition_score
 
                     #TODO: in case when the sender vm is dissapear we need to switch to the vm++ case or no more positive score
                     if(max_score_pid==-1 or partition_score[max_score_pid] <=0 ):
@@ -437,11 +400,26 @@ if __name__ == '__main__':
                         # hf.plot_compute_network_pervm(vm_computetimesum_map,vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
                         vm_increment_flag=True
 
-                        # print" number of bins in avoid_migration approach "+str(len(bin_partition_map.keys()))
+                        print" number of bins in avoid_migration approach "+str(len(bin_partition_map.keys()))
                         break #FIXME: jump to vm++ case from here
 
 
                     #### avoid the migration of max score pid and check for constraint
+                    #
+                    # print "avoiding migration for pid "+str(max_score_pid)
+                    # print "bottleneck vmid "+str(bottlneck_vmid)
+                    #
+                    # print "vm_send_map"
+                    # print vm_send_map
+                    #
+                    # print "vm_receive_map"
+                    # print vm_receive_map
+                    #
+                    # print "vm_computetimesum_map"
+                    # print vm_computetimesum_map
+                    #
+                    # print "partTime[max_score_pid]"
+                    # print partTime[max_score_pid]
 
                     hf.avoid_migration_for_partition(max_score_pid,send_bottleneck_flag,bin_partition_map,bin_vm_map,vm_send_map,vm_receive_map,partTime,vm_computetimesum_map,bottlneck_vmid,PhysicalVM_Partition_Map)
 
@@ -452,17 +430,34 @@ if __name__ == '__main__':
 
                     migration_count=hf.max_migration_partition_count(vm_send_map, vm_receive_map)
 
-
                     if(migration_count==0):
                         max_migration_time=0
                     else:
-                        max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+DESERIALIZATION_TIME+SERIALIZATION_TIME
+                        max_migration_time=((migration_count* PARTITION_SIZE/BANDWIDTH) *1000)+SERIALIZATION_TIME+DESERIALIZATION_TIME
+
+
+                    # print "vm_send_map"
+                    # print vm_send_map
+                    #
+                    # print "vm_receive_map"
+                    # print vm_receive_map
+                    #
+                    # print "vm_computetimesum_map"
+                    # print vm_computetimesum_map
+
+
+                    ##plotting of compute+network cost per vm
+                    # hf.plot_compute_network_pervm(vm_computetimesum_map,vm_send_map,vm_receive_map,PARTITION_SIZE,BANDWIDTH)
+
+
+                    ### add plotting function here
+                    # hf.plot_compute_network_pervm()
 
                     ######## check for constraint #########################
 
                     if(max_migration_time+ max_compute_time <=UPPER_LIMIT):
 
-                        # print "LossGain : Avoid migration satisfied the constrained"
+                        print "LossGain : Avoid migration satisfied the constrained"
 
                         #TODO: update the metrics post execution of superstep
                         hf.update_stats_at_end_of_superstep(bin_partition_map,bin_vm_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map)
@@ -486,10 +481,11 @@ if __name__ == '__main__':
 
                         makespan_with_migration+=(max_migration_time+max_compute_time)
 
+                        for vm in PhysicalVM_Partition_Map.keys():
 
-                        for i in range(0,number_of_partitions):
-                            if(Partition_PhysicalVM_Map[i]!= -1):
-                                print str(i)+","+str(superstep)+","+str(Partition_PhysicalVM_Map[i])
+                            if(len(PhysicalVM_Partition_Map[vm]) > max_partition_vm_list):
+                                max_partition_vm_list=len(PhysicalVM_Partition_Map[vm])
+
 
                         superstep+=1
 
@@ -503,17 +499,17 @@ if __name__ == '__main__':
                     ''' Preference 3 VM++ '''
 
 
-                    # print " *********************** using Preference 3 VM++ superstep "+str(superstep)+" *************************"
+                    print " *********************** using Preference 3 VM++ superstep "+str(superstep)+" *************************"
 
                     ### reset all parameter as at the start of the superstep
                     next_VMID_to_use=next_VMID_to_use_at_ss_start
                     PhysicalVM_Partition_Map=dict(PhysicalVM_Partition_Map_atStart)
                     Partition_PhysicalVM_Map=dict(Partition_PhysicalVM_Map_atStart)
 
-                    # print "UPPER_LIMIT"
-                    # print UPPER_LIMIT
-                    #
-                    # print "maxTime,"+str(maxTime)
+                    print "UPPER_LIMIT"
+                    print UPPER_LIMIT
+
+                    print "maxTime,"+str(maxTime)
 
                     while(True): ### vm increment approach, increase the number of VMs until the constraint is satisfied
 
@@ -526,19 +522,14 @@ if __name__ == '__main__':
 
                         #FIXME: the numbe of vms when reaches the number of partitions the avoid migration approach should end up with no migration
                         if(number_of_vm>number_of_partitions):
-                            # print "in vm++ approach number of VMs passed 40 with constraint at superstep ",superstep," and constraint ",CONSTRAINT_VALUE
-                            #FIXME: re-evaluate the mapping with updated constrinat
-                            next_VMID_to_use=next_VMID_to_use_at_ss_start
-                            PhysicalVM_Partition_Map=dict(PhysicalVM_Partition_Map_atStart)
-                            Partition_PhysicalVM_Map=dict(Partition_PhysicalVM_Map_atStart)
-
-                            break
+                            print "ERROR Cound not satisfy with constraint ..increase the value"
+                            exit()
 
                         next_VMID_to_use=next_VMID_to_use_at_ss_start
 
-                        # print "number of machines to be used "+str(number_of_vm)
-                        #
-                        # print "partTime",partTime
+                        print "number of machines to be used "+str(number_of_vm)
+
+                        print "partTime",partTime
 
                         bin_partition_map.clear()
                         bin_vm_map.clear()
@@ -553,14 +544,13 @@ if __name__ == '__main__':
                         next_VMID_to_use=result[1]
 
 
-                        # print "partTime",partTime
-                        # print "PhysicalVM_Partition_Map",PhysicalVM_Partition_Map
-                        #
-                        # print "bin_partition_map"
-                        # print bin_partition_map
-                        #
-                        # print "bin_vm_map"
-                        # print bin_vm_map
+                        print PhysicalVM_Partition_Map
+
+                        print "bin_partition_map"
+                        print bin_partition_map
+
+                        print "bin_vm_map"
+                        print bin_vm_map
 
                         ######### migration cost computation ###########################
 
@@ -595,7 +585,7 @@ if __name__ == '__main__':
                         #FIXME: maxTime may not be equal to the  max(vm_computetimesum_map.values())
                         if(migration_cost + max_compute_time <= UPPER_LIMIT): ### vm++ approach ==>check for constraint
 
-                            # print "constraint satisfied by VM++ "
+                            print "constraint satisfied by VM++ "
 
                             #TODO: update the metrics post superstep
                             hf.update_stats_at_end_of_superstep(bin_partition_map,bin_vm_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map)
@@ -619,10 +609,11 @@ if __name__ == '__main__':
 
                             makespan_with_migration+=(migration_cost+max_compute_time)
 
+                            for vm in PhysicalVM_Partition_Map.keys():
 
-                            for i in range(0,number_of_partitions):
-                                if(Partition_PhysicalVM_Map[i]!= -1):
-                                    print str(i)+","+str(superstep)+","+str(Partition_PhysicalVM_Map[i])
+                                if(len(PhysicalVM_Partition_Map[vm]) > max_partition_vm_list):
+                                    max_partition_vm_list=len(PhysicalVM_Partition_Map[vm])
+
 
 
                             superstep+=1
@@ -632,10 +623,10 @@ if __name__ == '__main__':
                         else: ### vm++approach ===>using avoid migration approach inside
 
                             ## try the avoid migration approach
-                            # print "In VM++ approach trying the avoid migration approach with "+str(number_of_vm)+" vms and "+str(len(partTime.keys()))+" partitions and already spawned "+str(next_VMID_to_use)+" vms superstep"+str(superstep)
+                            print "In VM++ approach trying the avoid migration approach with "+str(number_of_vm)+" vms and "+str(len(partTime.keys()))+" partitions and already spawned "+str(next_VMID_to_use)+" vms superstep"+str(superstep)
 
-                            # print "PhysicalVM_Partition_Map"
-                            # print PhysicalVM_Partition_Map
+                            print "PhysicalVM_Partition_Map"
+                            print PhysicalVM_Partition_Map
 
                             if(hf.run_avoid_migration_approach(next_VMID_to_use,partTime,bin_vm_map,bin_partition_map,vm_computetimesum_map,Partition_PhysicalVM_Map,PhysicalVM_Partition_Map,PARTITION_SIZE,BANDWIDTH,UPPER_LIMIT,superstep,number_of_vm,vm_send_map,vm_receive_map,SERIALIZATION_TIME,DESERIALIZATION_TIME)):
                                 continue
@@ -664,9 +655,10 @@ if __name__ == '__main__':
 
                                 makespan_with_migration+=(migration_cost+max_compute_time)
 
-                                for i in range(0,number_of_partitions):
-                                    if(Partition_PhysicalVM_Map[i]!= -1):
-                                        print str(i)+","+str(superstep)+","+str(Partition_PhysicalVM_Map[i])
+                                for vm in PhysicalVM_Partition_Map.keys():
+
+                                    if(len(PhysicalVM_Partition_Map[vm]) > max_partition_vm_list):
+                                        max_partition_vm_list=len(PhysicalVM_Partition_Map[vm])
 
 
                                 superstep+=1
@@ -677,14 +669,14 @@ if __name__ == '__main__':
     ########################################################################################################################################################################
 
     '''METRIC CALCULATION at the end of all supersteps'''
-    #
-    # print "'''METRIC CALCULATION at the end of all supersteps'''"
-    #
-    # print "vm_migration_ss_map",vm_migration_ss_map
-    #
-    # print "vm_ss_active_map",vm_ss_active_map
-    #
-    # print "ss_migration_cost",ss_migration_cost
+
+    print "'''METRIC CALCULATION at the end of all supersteps'''"
+
+    print "vm_migration_ss_map",vm_migration_ss_map
+
+    print "vm_ss_active_map",vm_ss_active_map
+
+    print "ss_migration_cost",ss_migration_cost
 
 
     #core_seconds_with_migration  ##for each vm get seconds in active SS + time when it is active only for migration
@@ -760,25 +752,25 @@ if __name__ == '__main__':
         Physical_VM_CoreSec_map[vm]=vm_msec
 
 #########################################################################
-    # print "VM CoreMin"
-    # print Physical_VM_CoreMin_map
-    #
-    # print "VM CoreSec"
-    # print Physical_VM_CoreSec_map
-    #
-    #
-    # print "total core_Min"
-    # print sum(Physical_VM_CoreMin_map.values())
+    print "VM CoreMin"
+    print Physical_VM_CoreMin_map
+
+    print "VM CoreSec"
+    print Physical_VM_CoreSec_map
+
+
+    print "total core_Min"
+    print sum(Physical_VM_CoreMin_map.values())
     core_min=sum(Physical_VM_CoreMin_map.values())
 
-    # print "total core_sec"
-    # print sum(Physical_VM_CoreSec_map.values())/1000.0
-
+    print "total core_sec"
+    print sum(Physical_VM_CoreSec_map.values())/1000.0
     core_sec=sum(Physical_VM_CoreSec_map.values())/1000.0
+    print df
 
-    # print df
+    print makespan_with_migration
 
-    # print "makespan_with_migration",makespan_with_migration
+    df.to_csv("info.csv")
+    print str(makespan_with_migration/1000.0)+","+str(core_min)+","+str(core_sec)
 
-    # df.to_csv("info.csv")
-    print str(makespan_with_migration)+","+str(core_min)+","+str(core_sec)
+    print max_partition_vm_list
