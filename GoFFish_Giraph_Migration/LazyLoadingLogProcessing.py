@@ -92,11 +92,24 @@ for log_dir in out_dir_list:
 
         for pid in range(0,number_of_partition):
 
-            grep_cmd="grep -R ComputeCallable,wid,|grep superstep,"+str(i)+",pid,"+str(pid)+",|awk -F\",\" '{print $NF}' "
+            #COMPUTE,superstep,6,sgid,25769803777,pid,6,computeTime,0
+
+            grep_cmd="grep -R COMPUTE,superstep,|grep superstep,"+str(i)+"| grep ,pid,"+str(pid)+",|awk -F\",\" '{sum+= $NF}END{print sum}' "
             # print grep_cmd
-            computeTime=int(subprocess.check_output(grep_cmd,shell=True))
-            row=[pid,pid,i+1,computeTime]
-            df_partition.loc[len(df_partition)]=row
+            ans=subprocess.check_output(grep_cmd,shell=True)
+
+            try:
+                computeTime=int(ans)
+            except:
+                # print grep_cmd
+                continue
+            if len(ans)>0:
+                computeTime=int(ans)
+            # computeTime=int(subprocess.check_output(grep_cmd,shell=True))
+            # print computeTime
+            if computeTime:
+                row=[pid,pid,i+1,computeTime]
+                df_partition.loc[len(df_partition)]=row
 
 
     print df_SS
@@ -109,4 +122,4 @@ for log_dir in out_dir_list:
 
     df_partition = df_partition.astype(int)
 
-    df_partition.to_csv(log_dir+"_partition.csv",index=None)
+    df_partition.to_csv(log_dir+"_partition.csv",index=None,header=None)

@@ -244,7 +244,7 @@ if __name__ == '__main__':
             ####################################CASE WHEN maxTime< 1% of default makespan #########################################################################
             #TODO: remove the constraint when the maxTime is <= 1% of the default makespan
             #TODO: handle the case when a partition is not mapped yet.
-            if(maxTime<=((DEFAULT_MAKESPAN/100.0)*10)):
+            if(maxTime<=((DEFAULT_MAKESPAN/100.0)*1)):
                 #TODO: form a bin_partition_map and bin_vm_map such that there is no migration and existing methods can be used
                 bin_partition_map={}
                 bin_vm_map={}
